@@ -1,0 +1,554 @@
+{
+  "paper_json": {
+    "target": "zh",
+    "model": "baidu",
+    "title": "Hammer PDF: An Intelligent PDF Reader for Scientific Papers",
+    "publication": {
+      "publisher": {},
+      "date": ""
+    },
+    "author": [
+      {
+        "forename": "Sheng-Fu",
+        "surname": "Wang",
+        "name": "Sheng-Fu Wang",
+        "email": "wangsf@bit.edu.cn"
+      },
+      {
+        "forename": "Shu-Hang",
+        "surname": "Liu",
+        "name": "Shu-Hang Liu",
+        "email": ""
+      },
+      {
+        "forename": "Yi-Fan",
+        "surname": "Lu",
+        "name": "Yi-Fan Lu",
+        "email": "luyifan@bit.edu.cn"
+      },
+      {
+        "forename": "Xian-Ling",
+        "surname": "Mao",
+        "name": "Xian-Ling Mao",
+        "email": ""
+      },
+      {
+        "forename": "Tian-Yi",
+        "surname": "Che",
+        "name": "Tian-Yi Che",
+        "email": ""
+      },
+      {
+        "forename": "Song-Xiao",
+        "surname": "Yang",
+        "name": "Song-Xiao Yang",
+        "email": "yangsongxiao0616@gmail.com"
+      },
+      {
+        "forename": "Heyan",
+        "surname": "Huang",
+        "name": "Heyan Huang",
+        "email": ""
+      },
+      {
+        "forename": "Pdf",
+        "surname": "Hammer",
+        "name": "Pdf Hammer",
+        "email": ""
+      },
+      {
+        "forename": "An Intelligent ",
+        "surname": "Pdf",
+        "name": "An Intelligent  Pdf",
+        "email": ""
+      }
+    ],
+    "abstract": [
+      [
+        "It is the most important way for researchers to acquire academic progress via reading scientific papers, most of which are in PDF format. However, existing PDF Readers like Adobe Acrobat Reader and Foxit PDF Reader are usually only for reading by rendering PDF files as a whole, and do not consider the multi-granularity content understanding of a paper itself. Specifically, taking a paper as a basic and separate unit, existing PDF Readers cannot access extended information about the paper, such as corresponding videos, blogs and codes. Meanwhile, they cannot understand the academic content of a paper, such as terms, authors, and citations. To solve these problems, we introduce Hammer PDF, an intelligent PDF Reader for scientific papers. Apart from basic reading functions, Hammer PDF has the following four innovative features: (1) information extraction ability, which can locate and mark spans like terms and other entities; (2) information extension ability, which can present relevant academic content of a paper, such as citations, references, codes, videos, blogs, etc; (3) built-in Hammer Scholar, an academic search engine based on academic information collected from major academic databases; (4) built-in Q&A bot, which can find helpful conference information. The proposed Hammer PDF Reader can help researchers, especially those studying computer science, to improve the efficiency and experience of reading scientific papers. We have released Hammer PDF, available at https://pdf.hammerscholar.net/face."
+      ]
+    ],
+    "body": [
+      {
+        "section": {
+          "index": "1",
+          "name": "INTRODUCTION"
+        },
+        "p": [
+          {
+            "text": "Nowadays, researchers have to spend considerable time on reading scientific papers to keep abreast of all the latest developments concerning their specialized fields. Most of the literature is in PDF format, and there are many tools available on the market that support reading PDF documents, such as Adobe Acrobat Reader 1 and Foxit PDF Reader 2 .",
+            "quote": []
+          },
+          {
+            "text": "However, existing PDF Readers like Adobe Acrobat Reader and Foxit PDF Reader are usually only for reading by rendering PDF files as a whole, and do not consider the multi-granularity content understanding of a paper itself. Specifically, taking a paper as a basic and separate unit, existing PDF Readers cannot access extended information about the paper, such as corresponding videos, blogs and codes. Meanwhile, they cannot understand the academic content of a paper, such as terms, authors and citations. For example, when a paper is opened through Adobe Reader, researchers can only read the paper itself, and cannot obtain the extended content such as its corresponding videos, tutorial blogs and implementation codes. If a researcher wants to know: \"Where is the corresponding code/video/blogs? What is the meaning of a word? What about authors? Where is the full text of a reference?\", he has to use other tools such as browsers, translators, web search engines or scholar search engines to find the answers, which is tedious and tend to interrupt the reading process, and thus is very low efficient. Why do not we use only one tool to accomplish all these functions? Thus, to tackle these above problems, this paper will introduce Hammer PDF, a multi-platform intelligent PDF Reader for scientific papers, to improve the efficiency and experience of reading PDF documents through machine learning and academic search. The proposed Hammer PDF Reader is available for both web and desktop applications (Windows, macOS, and Linux). Hammer PDF has four new features as follows:",
+            "quote": []
+          },
+          {
+            "text": "• Information extraction ability, which can first get key spans like terms, authors, and citations by information extraction methods, and then mark these spans on the view panel, enabling users to interact directly with these spans. • Information extension ability, which can present related academic information of a paper such as authors, citations, references, codes, videos, and blogs. • Built-in Hammer Scholar, which is an one-stop academic search engine based on academic information collected from major academic databases. • Built-in Q&A bot, which can find useful conference information, such as host place, host date, and impact factor.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "2",
+          "name": "RELATED WORK"
+        },
+        "p": [
+          {
+            "text": "Traditional PDF Readers like Adobe Acrobat Reader and Foxit PDF Reader only support rendering, reading, and other basic functions. Meanwhile, these PDF Readers do not perform any content analysis, which fails to meet the intelligent needs of reading academic papers. As a result, several new PDF Readers focusing on mining academic value of scientific papers have come out recently. ScholarPhi [3, 4] argues that it is often difficult to read articles when the information researchers need to understand them is scattered across multiple paragraphs. Thus, ScholarPhi 3 identifies terms and symbols in an article through fine-grained analysis and allows users to access their definitions. ReadPaper 4 focuses on academic communication through literature management and notes sharing, along with simple paper search functions through coarse-grained analysis. However, the academic database of ReadPaper is lacking in content to meet complex reading demands.",
+            "quote": [
+              {
+                "text": "[3,",
+                "target": "#b2",
+                "type": "bibr",
+                "context": "cholarPhi ",
+                "index": 394
+              },
+              {
+                "text": "4]",
+                "target": "#b3",
+                "type": "bibr",
+                "context": "arPhi [3, ",
+                "index": 398
+              }
+            ]
+          },
+          {
+            "text": "Compared to existing PDF Readers, Hammer PDF, introduced in this paper, is able to perform multi-granularity analysis of scientific papers, providing academic enhancements as intelligent features.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "3",
+          "name": "OVERVIEW"
+        },
+        "p": [
+          {
+            "text": "In this section, we introduce the overall architecture and core features of Hammer PDF. As shown in Figure , Hammer PDF features basic reading as well as academic enhancements. Specifically, academic enhancements include information extraction, information extension, academic search and conference Q&A. Section 4 provides more details on academic enhancements.",
+            "quote": []
+          },
+          {
+            "text": "Hammer PDF offers basic reading functions. Users can open PDF documents via local file, URL address, or DOI (Digital Object Identifier). Also, users can open documents from the search results of the academic search engine Hammer Scholar 5 . When a document is successfully opened, the interface will create a new tab called the view panel, as shown in Figure . The middle part of the view panel displays the document itself, while the Basic Sidebar on the left side provides text search and shows document information including outline, thumbnail, and metadata. Also, on the right side of the view panel, the Academic Sidebar presents additional content for academic enhancements. Moreover, users can access translations by directly selecting text within a document, which helps foreign researchers quickly understand the content. As Figure  (f) shows, when some text is selected, a translation card is displayed near the text and can be dragged as needed.",
+            "quote": []
+          },
+          {
+            "text": "Hammer PDF also has simple document management capabilities, where users can open, bookmark, and delete one or more document records. Furthermore, Hammer PDF is a multi-platform PDF Reader available for web and desktop applications. In order to satisfy the reading needs of as many users as possible, the interface supports four languages, namely Simplified Chinese, Traditional Chinese, English and Japanese. ",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "4",
+          "name": "INTELLIGENT FEATURES"
+        },
+        "p": [
+          {
+            "text": "In this section, we introduce four features of Hammer PDF for academic enhancements, including information extraction, information extension, academic search and conference Q&A.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "4.1",
+          "name": "Information Extraction"
+        },
+        "p": [
+          {
+            "text": "To structure documents, we use Grobid [5, 7] to get the logical structure of PDF documents. Grobid is a machine learning library for extracting and parsing raw PDF files into structured documents, with an F1-score of 0.89 in parsing references [8]. Then, we feed the extracted title, abstract and body into the information extraction model SpERT [2], a span-based joint entity and relation extraction model. Specifically, we use SpERT to perform NER (Named Entity Recognition) on the SciERC [6] dataset to obtain semantically rich terms and their types, including Task, Method, Metric, Material, Generic and Other. SpERT achieves an F1-score of 70.33% by using SciBERT [1] as a pre-trained language model for better results in scientific papers.",
+            "quote": [
+              {
+                "text": "[5,",
+                "target": "#b4",
+                "type": "bibr",
+                "context": "se Grobid ",
+                "index": 38
+              },
+              {
+                "text": "7]",
+                "target": "#b6",
+                "type": "bibr",
+                "context": "robid [5, ",
+                "index": 42
+              },
+              {
+                "text": "[8]",
+                "target": "#b7",
+                "type": "bibr",
+                "context": "eferences ",
+                "index": 244
+              },
+              {
+                "text": "[2]",
+                "target": "#b1",
+                "type": "bibr",
+                "context": "del SpERT ",
+                "index": 346
+              },
+              {
+                "text": "[6]",
+                "target": "#b5",
+                "type": "bibr",
+                "context": "he SciERC ",
+                "index": 491
+              },
+              {
+                "text": "[1]",
+                "target": "#b0",
+                "type": "bibr",
+                "context": "g SciBERT ",
+                "index": 669
+              }
+            ]
+          },
+          {
+            "text": "With these terms in place, we identify the page number and page location for each term. Next, we mark an interactive underline mark where the term is located. Figure  (b) depicts that different types of terms will be distinguished by different colored underlines. The Academic Sidebar shows all terms in the document and their respective contexts. When the user clicks on a term span, the sidebar displays the translation and other locations for the same term.",
+            "quote": []
+          },
+          {
+            "text": "We also capture author spans and citation spans from the structured document, and users are able to interact with these spans by clicking on them in the view panel just like term spans, as shown in Figure . When an author span is clicked, the Academic Sidebar presents the published works of the author. When a citation span is clicked, the Academic Sidebar displays the details of the corresponding reference.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "4.2",
+          "name": "Information Extension"
+        },
+        "p": [
+          {
+            "text": "Based on the academic database provided by Hammer Scholar, which will be described in Section 4.3, we implement information extension with multiple academic features. When the user opens a document, we retrieve the academic database for a matching paper according to the document's structure information. Next, the Academic Sidebar presents the information of the retrieved paper, including the title, authors, abstract, citations, references, etc., as depicted in Figure . If the paper has related videos, tutorial blogs, or codes attached, they will be presented as well. Besides, users can click on the name of an author or the publication source to directly view its extended information.",
+            "quote": []
+          },
+          {
+            "text": "We perform information extension not only for papers but also for terms. For example, when a term is selected, we fetch the relevant encyclopedia from Wikipedia 6 and present it on the Academic Sidebar. Specifically, for terms that cannot be matched perfectly on Wikipedia, we offer several partial matches as an alternative. In addition, figures, tables, and equations in the paper support quick jumping, meaning that users can jump to the target by clicking the corresponding button in the Academic Sidebar.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "4.3",
+          "name": "Built-in Academic Search"
+        },
+        "p": [
+          {
+            "text": "We collect academic resources from six literature databases including arXiv 7 , ACL Anthology 8 and DBLP 9 . Academic resources contain the title, author, publication date, publisher, DOI, abstract, etc. Furthermore, we also collect presentations, blogs, videos, codes, and other extended resources for information extension. Over these Hammer Scholar has a separate interface that provides both paper search and video search. Take paper search as an example, the returned results after entering the keyword \"dialog\" are shown in Figure . Apart from filtering and sorting current search results, users can also pick a paper of interest and read it directly in the view panel by click \"Open\" button in a result, eliminating the need to find and upload the document.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "4.4",
+          "name": "Built-in Q&A Bot"
+        },
+        "p": [
+          {
+            "text": "Academic Q&A serves as a supplement to information extension and can answer questions related to conferences. We design several conference-related questions, such as host date, host place, deadline, conference level, impact factor, etc. After the user asks a question, academic Q&A identifies the question's intent. If the question belongs to a conference recommendation, then the Q&A model returns the answer in natural language. If the question belongs to an academic search, the interface will jump to Hammer Scholar and search directly with the entered keywords.",
+            "quote": []
+          },
+          {
+            "text": "As shown in Figure , when the user asks \"What is the impact factor of TKDE?\", the Q&A model can reply the correct impact factor of the journal. Besides, for the question \"What conferences have been held in May 2022?\", the Q&A model returns the list of eligible conferences. Then, users can continue to ask questions such as \"I want some papers published by Hang Li in 2022.\" as well as \"Host place of SIGIR 2022\", or hover over the name of a conference to see more details about the conference.",
+            "quote": []
+          },
+          {
+            "text": "To take previous conversations into account during the current conversation, we also design a multi-round conversation logic. For instance, if a user asks \"What is the deadline of ACL\" and then asks \"Where is it held\", the Q&A model is able to correctly say where ACL is held. Notably, academic Q&A supports both Chinese and English to serve more users.",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "5",
+          "name": "DEMONSTRATION"
+        },
+        "p": [
+          {
+            "text": "We demonstrate several core features of Hammer PDF through a comprehensive use case while using the figures from Section 4 due to space constraints.",
+            "quote": []
+          },
+          {
+            "text": "First, users have 3 ways to open an academic article in PDF format: (1) upload a local file; (2) enter a URL address of a paper; (3) click \"Open\" button in returned results from built-in Hammer Scholar search engine, as shown in Figure . Then, users can browse the document in the view panel and check the document information in the Basic Sidebar, as seen in Figure  (a). After that, the document is structured and parsed for academic enhancements. For a paper of about 8 pages, the average time taken to process the document is roughly 9.8 seconds.",
+            "quote": []
+          },
+          {
+            "text": "Once the document has been processed, the Academic Sidebar displays extended information about the paper, and users can switch the top navigation to view all terms within the article, as shown in Figure   Users who need to find specific academic resources can search using the built-in academic search engine. As illustrated in Figure , for a certain search result, users can click on the title to view its details. Users can also chat with the conference Q&A bot to get detailed information about academic journals or academic conferences, as depicted in Figure .",
+            "quote": []
+          }
+        ]
+      },
+      {
+        "section": {
+          "index": "6",
+          "name": "CONCLUSION"
+        },
+        "p": [
+          {
+            "text": "In this paper, we introduce Hammer PDF, a novel multi-platform intelligent PDF Reader for scientific papers. Hammer PDF attempts to meet the growing intelligent needs of researchers during reading PDF documents. In addition to basic reading functions, we improve reading efficiency through information extraction, information extension, academic search, and conference Q&A. With lots of academic data, Hammer PDF can boost researchers' experience when reading scientific papers.",
+            "quote": []
+          },
+          {
+            "text": "The introduction video and usage examples can be found on https://pdf.hammerscholar.net/face. We recommend using browsers based on Chromium 10 to visit this site. Users can download desktop applications (Windows, macOS, and Linux) and submit feedback on https://github.com/HammerPDF/Smart-Scientific-Reader.",
+            "quote": []
+          }
+        ]
+      }
+    ],
+    "reference": [
+      {
+        "index": "b0",
+        "title": "SciBERT: A Pretrained Language Model for Scientific Text",
+        "author": [
+          {
+            "forename": "Iz",
+            "surname": "Beltagy",
+            "name": "Iz Beltagy",
+            "email": ""
+          },
+          {
+            "forename": "Kyle",
+            "surname": "Lo",
+            "name": "Kyle Lo",
+            "email": ""
+          },
+          {
+            "forename": "Arman",
+            "surname": "Cohan",
+            "name": "Arman Cohan",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing",
+        "date": "2019"
+      },
+      {
+        "index": "b1",
+        "title": "Span-Based Joint Entity and Relation Extraction with Transformer Pre-Training",
+        "author": [
+          {
+            "forename": "Markus",
+            "surname": "Eberts",
+            "name": "Markus Eberts",
+            "email": ""
+          },
+          {
+            "forename": "Adrian",
+            "surname": "Ulges",
+            "name": "Adrian Ulges",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "ECAI 2020",
+        "date": "2020"
+      },
+      {
+        "index": "b2",
+        "title": "Augmenting scientific papers with just-in-time, position-sensitive definitions of terms and symbols",
+        "author": [
+          {
+            "forename": "Andrew",
+            "surname": "Head",
+            "name": "Andrew Head",
+            "email": ""
+          },
+          {
+            "forename": "Kyle",
+            "surname": "Lo",
+            "name": "Kyle Lo",
+            "email": ""
+          },
+          {
+            "forename": "Dongyeop",
+            "surname": "Kang",
+            "name": "Dongyeop Kang",
+            "email": ""
+          },
+          {
+            "forename": "Raymond",
+            "surname": "Fok",
+            "name": "Raymond Fok",
+            "email": ""
+          },
+          {
+            "forename": "Sam",
+            "surname": "Skjonsberg",
+            "name": "Sam Skjonsberg",
+            "email": ""
+          },
+          {
+            "forename": "S.",
+            "surname": "Daniel",
+            "name": "S. Daniel",
+            "email": ""
+          },
+          {
+            "forename": "Marti A.",
+            "surname": "Weld",
+            "name": "Marti A. Weld",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems",
+        "date": "2021"
+      },
+      {
+        "index": "b3",
+        "title": "Document-Level Definition Detection in Scholarly Documents: Existing Models, Error Analyses, and Future Directions",
+        "author": [
+          {
+            "forename": "Dongyeop",
+            "surname": "Kang",
+            "name": "Dongyeop Kang",
+            "email": ""
+          },
+          {
+            "forename": "Andrew",
+            "surname": "Head",
+            "name": "Andrew Head",
+            "email": ""
+          },
+          {
+            "forename": "Risham",
+            "surname": "Sidhu",
+            "name": "Risham Sidhu",
+            "email": ""
+          },
+          {
+            "forename": "Kyle",
+            "surname": "Lo",
+            "name": "Kyle Lo",
+            "email": ""
+          },
+          {
+            "forename": "S.",
+            "surname": "Daniel",
+            "name": "S. Daniel",
+            "email": ""
+          },
+          {
+            "forename": "Marti A.",
+            "surname": "Weld",
+            "name": "Marti A. Weld",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "Proceedings of the First Workshop on Scholarly Document Processing",
+        "date": "2020"
+      },
+      {
+        "index": "b4",
+        "title": "GROBID: Combining automatic bibliographic data recognition and term extraction for scholarship publications",
+        "author": [
+          {
+            "forename": "Patrice",
+            "surname": "Lopez",
+            "name": "Patrice Lopez",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "International conference on theory and practice of digital libraries",
+        "date": "2009"
+      },
+      {
+        "index": "b5",
+        "title": "Multi-Task Identification of Entities, Relations, and Coreference for Scientific Knowledge Graph Construction",
+        "author": [
+          {
+            "forename": "Yi",
+            "surname": "Luan",
+            "name": "Yi Luan",
+            "email": ""
+          },
+          {
+            "forename": "Luheng",
+            "surname": "He",
+            "name": "Luheng He",
+            "email": ""
+          },
+          {
+            "forename": "Mari",
+            "surname": "Ostendorf",
+            "name": "Mari Ostendorf",
+            "email": ""
+          },
+          {
+            "forename": "Hannaneh",
+            "surname": "Hajishirzi",
+            "name": "Hannaneh Hajishirzi",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+        "date": "2018"
+      },
+      {
+        "index": "b6",
+        "title": "Grobid-information extraction from scientific publications",
+        "author": [
+          {
+            "forename": "Laurent",
+            "surname": "Romary",
+            "name": "Laurent Romary",
+            "email": ""
+          },
+          {
+            "forename": "Patrice",
+            "surname": "Lopez",
+            "name": "Patrice Lopez",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "ERCIM News",
+        "date": "2015"
+      },
+      {
+        "index": "b7",
+        "title": "Machine learning vs. rules and out-of-the-box vs. retrained: An evaluation of opensource bibliographic reference and citation parsers",
+        "author": [
+          {
+            "forename": "Dominika",
+            "surname": "Tkaczyk",
+            "name": "Dominika Tkaczyk",
+            "email": ""
+          },
+          {
+            "forename": "Andrew",
+            "surname": "Collins",
+            "name": "Andrew Collins",
+            "email": ""
+          },
+          {
+            "forename": "Paraic",
+            "surname": "Sheridan",
+            "name": "Paraic Sheridan",
+            "email": ""
+          },
+          {
+            "forename": "Joeran",
+            "surname": "Beel",
+            "name": "Joeran Beel",
+            "email": ""
+          }
+        ],
+        "doi": "",
+        "venue": "Proceedings of the 18th ACM/IEEE on joint conference on digital libraries",
+        "date": "2018"
+      }
+    ]
+  },
+  "temperature": 0.7,
+  "max_tokens": 4096
+}
