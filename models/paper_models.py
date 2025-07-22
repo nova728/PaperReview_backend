@@ -8,6 +8,7 @@ class PaperRequest:
     temperature: float = 0.7
     max_tokens: int = 2048
     use_chunking: bool = True  # 是否启用分块处理
+    include_authors: bool = False  # 是否包含作者信息（peer review建议False避免偏见）
     
     @classmethod
     def from_dict(cls, data: dict):
@@ -19,7 +20,8 @@ class PaperRequest:
             paper_json=data['paper_json'],
             temperature=data.get('temperature', 0.7),
             max_tokens=data.get('max_tokens', 2048),
-            use_chunking=data.get('use_chunking', True)
+            use_chunking=data.get('use_chunking', True),
+            include_authors=data.get('include_authors', False)
         )
 
 @dataclass

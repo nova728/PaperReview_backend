@@ -1,0 +1,11 @@
+{
+  "model": "scientific-reviewer-7b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "请对以下学术论文进行专业的学术评审：\n\n论文标题：Quantifying the Influence of Evaluation Aspects on Long-Form Response Assessment\n\n论文摘要：Evaluating the outputs of large language models (LLMs) on long-form generative tasks remains challenging. While fine-grained, aspectwise evaluations provide valuable diagnostic information, they are difficult to design exhaustively, and each aspect's contribution to the overall acceptability of an answer is unclear. In this study, we propose a method to compute an overall quality score as a weighted average of three key aspects: factuality, informativeness, and formality. This approach achieves stronger correlations with human judgments compared to previous metrics. Our analysis identifies factuality as the most predictive aspect of overall quality. Additionally, we release a dataset of 1.2k long-form QA answers annotated with both absolute judgments and relative preferences in overall and aspect-wise schemes, to aid future research in evaluation practices. github.com/gokamoda/lfqa-weighted-eval\n\n请从以下几个方面进行评审：\n1. 研究意义和创新性\n2. 技术方法的合理性\n3. 实验设计和结果分析\n4. 论文写作和表达\n5. 总体评价和建议\n\n请提供详细的评审意见："
+    }
+  ],
+  "temperature": 0.7,
+  "max_tokens": 1024
+}
