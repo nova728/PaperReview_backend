@@ -14,7 +14,7 @@ class VllmService:
         self._warmup_model()
         
     def generate_peer_review(self, paper_content: str, query: str, 
-                            temperature: float = 0.7, max_tokens: int = 2048) -> str:
+                            temperature: float = 0.0, max_tokens: int = 8192) -> str:
         """Generate peer review"""
         logger.info("Calling vLLM to generate peer review")
         
@@ -48,7 +48,7 @@ class VllmService:
             raise RuntimeError(f"论文总结生成失败: {str(e)}")
     
     def generate_peer_review_stream(self, paper_content: str, query: str, 
-                                   temperature: float = 0.7, max_tokens: int = 2048) -> Generator[str, None, None]:
+                                   temperature: float = 0.0, max_tokens: int = 8192) -> Generator[str, None, None]:
         """Generate peer review with streaming output"""
         logger.info("Calling vLLM to generate peer review (streaming)")
         

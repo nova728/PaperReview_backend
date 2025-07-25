@@ -1,0 +1,20 @@
+{
+  "reviews": [
+    {
+      "content": "This paper presents a novel approach to evaluating long-form generative responses by aggregating fine-grained, multi-aspect evaluations into a single acceptability score using a weighted average. The authors introduce a dataset annotated with four dimensions—factuality, amount of information, formality, and acceptability—alongside a methodology that leverages large language models (LLMs) to predict acceptability scores. The study evaluates the correlation between these scores and human judgments, providing insights into the relative importance of the dimensions. While the paper addresses a timely and relevant problem in the field of natural language processing, particularly in the context of long-form QA, its scope is somewhat constrained by the reliance on a single dataset and limited exploration of alternative evaluation methods or broader dimensions of quality assessment.",
+      "name": "Summary"
+    },
+    {
+      "content": "The paper tackles an important and timely problem in the field of natural language processing, specifically in the evaluation of long-form generative responses. The proposed approach of aggregating multi-aspect evaluations into a single acceptability score is innovative and offers practical utility for researchers and practitioners. The introduction of a dataset annotated with four dimensions—factuality, amount of information, formality, and acceptability—is a valuable contribution that can support future research in this domain. The use of LLMs to predict acceptability scores demonstrates a creative application of current technologies, and the study provides insights into the relative importance of the dimensions through quantitative and qualitative analyses. Additionally, the paper is generally well-written, with clear motivation and a logical structure, making it accessible to readers. The inclusion of a weighted average approach to combine scores adds value by improving the correlation with human judgments compared to simpler methods.",
+      "name": "Strengths"
+    },
+    {
+      "content": "Despite its contributions, the paper has several limitations. The reliance on a single dataset (ELI5) raises concerns about the generalizability of the findings, as the dataset's characteristics may not fully represent the diversity of real-world scenarios. The paper does not adequately address the limitations of using LLMs for evaluation, such as biases inherent in the training data or the challenges of accurately capturing complex human judgments. The choice of only three aspects—factuality, amount of information, and formality—for predicting acceptability is arbitrary and excludes potentially important dimensions like coherence, relevance, or novelty. Furthermore, the paper does not sufficiently explore alternative aggregation methods beyond simple weighting or discuss the implications of the observed correlations with human judgments. The presentation of the paper could also be improved, as some sections are difficult to follow, and the lack of clarity in certain parts detracts from the overall readability. Lastly, the study does not provide actionable recommendations for improving the quality of generated responses, limiting its practical applicability.",
+      "name": "Weaknesses"
+    },
+    {
+      "content": "Reject",
+      "name": "Decision"
+    }
+  ]
+}

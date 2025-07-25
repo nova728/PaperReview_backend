@@ -10,8 +10,8 @@ class VllmMessage:
 class VllmRequest:
     model: str
     messages: List[VllmMessage]
-    max_tokens: int = 2048
-    temperature: float = 0.7
+    max_tokens: int = 8192 
+    temperature: float = 0.0  # 确定性输出
     stream: bool = False  # 添加流式输出支持
     
     def to_dict(self):

@@ -1,23 +1,39 @@
 import logging
-from typing import Dict, Any, List, Optional, Generator
+from typing import Dict, Any, List, Optional
 import re
+
+try:
+    from transformers import AutoTokenizer
+    HAS_TOKENIZER = True
+except ImportError:
+    HAS_TOKENIZER = False
 
 logger = logging.getLogger(__name__)
 
 class TextProcessorService:
     MAX_LENGTH = 32768  # 32k字符限制
-    CHUNK_SIZE = 16000  # 16k字符块
-    CHUNK_OVERLAP = 500  # 块重叠500字符
+    MAX_TOKENS = 32000  # 32k token限制
     
-    def __init__(self, include_authors=False):
+    def __init__(self, include_authors=False, tokenizer_path=None):
         """
         初始化文本处理服务
         
         Args:
             include_authors (bool): 是否包含作者信息，默认False
                                   对于peer review，建议设为False以避免偏见
+            tokenizer_path (str): tokenizer路径，用于token级别处理
         """
         self.include_authors = include_authors
+        self.tokenizer = None
+        
+        # 初始化tokenizer（如果可用）
+        if HAS_TOKENIZER and tokenizer_path:
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+                logger.info(f"成功加载tokenizer: {tokenizer_path}")
+            except Exception as e:
+                logger.warning(f"无法加载tokenizer {tokenizer_path}: {str(e)}")
+                self.tokenizer = None
     
     def process_paper_json(self, paper_json: Dict[str, Any], auto_truncate: bool = True) -> str:
         """
@@ -26,7 +42,6 @@ class TextProcessorService:
         Args:
             paper_json: 论文JSON数据
             auto_truncate: 是否自动截断到最大长度，默认True
-                          设为False时返回完整文本，由调用者决定是否需要分块处理
         """
         logger.info("处理JSON格式论文数据")
         
@@ -75,7 +90,7 @@ class TextProcessorService:
             
             # 根据参数决定是否截断
             if auto_truncate:
-                return self._truncate_to_max_length(full_text)
+                return self._truncate_to_max_tokens(full_text)
             else:
                 return full_text
             
@@ -83,168 +98,36 @@ class TextProcessorService:
             logger.error(f"处理JSON论文数据失败: {str(e)}")
             raise RuntimeError(f"处理JSON论文数据失败: {str(e)}")
     
-    def process_long_text_with_chunks(self, text: str, query: str, vllm_service) -> str:
-        """分块处理长文本"""
-        logger.info(f"开始分块处理，文本长度: {len(text)} 字符")
-        
-        # 检查是否需要分块
-        if len(text) <= self.MAX_LENGTH:
-            logger.info("文本长度在限制内，直接处理")
-            return text
-        
-        # 分块处理
-        chunks = self._split_text_into_chunks(text)
-        logger.info(f"文本分为 {len(chunks)} 块")
-        
-        # 处理每个块
-        chunk_reviews = []
-        for i, chunk in enumerate(chunks):
-            logger.info(f"处理第 {i+1}/{len(chunks)} 块 (长度: {len(chunk)} 字符)")
-            
-            chunk_query = f"Please provide a preliminary review of the following section (this is part {i+1} of {len(chunks)} parts). Focus on: {query}"
-            try:
-                chunk_review = vllm_service.generate_peer_review(chunk, chunk_query)
-                chunk_reviews.append(f"Section {i+1} Review:\n{chunk_review}")
-            except Exception as e:
-                logger.error(f"处理第{i+1}块时出错: {str(e)}")
-                chunk_reviews.append(f"Section {i+1} processing failed: {str(e)}")
-        
-        # 合并评审
-        combined_reviews = "\n\n".join(chunk_reviews)
-        logger.info(f"合并评审: {len(combined_reviews)} 字符")
-        
-        # 如果合并评审仍然过长，则递归处理
-        if len(combined_reviews) > self.MAX_LENGTH:
-            logger.info("Combined reviews still too long, performing final synthesis")
-            return self.process_long_text_with_chunks(combined_reviews, 
-                                                    f"Please synthesize the following section reviews into a comprehensive peer review focusing on: {query}", 
-                                                    vllm_service)
-        
-        # 最终评审
-        final_query = f"Based on the above section reviews, please provide a comprehensive peer review of the entire paper focusing on: {query}"
-        try:
-            final_review = vllm_service.generate_peer_review(combined_reviews, final_query)
-            logger.info("Chunk-based peer review completed")
-            return final_review
-        except Exception as e:
-            logger.error(f"Error during final review synthesis: {str(e)}")
-            return f"Peer review synthesis completed, but final analysis failed: {str(e)}\n\nSection Reviews:\n{combined_reviews}"
-    
-    def process_long_text_with_chunks_stream(self, text: str, query: str, vllm_service) -> Generator[str, None, None]:
-        """分块处理长文本 - 流式版本"""
-        logger.info(f"开始流式分块处理，文本长度: {len(text)} 字符")
-        
-        # 检查是否需要分块
-        if len(text) <= self.MAX_LENGTH:
-            logger.info("文本长度在限制内，直接流式处理")
-            for chunk in vllm_service.generate_peer_review_stream(text, query):
-                yield chunk
-            return
-        
-        # 分块处理
-        chunks = self._split_text_into_chunks(text)
-        logger.info(f"文本分为 {len(chunks)} 块")
-        
-        # 流式处理每个块
-        chunk_reviews = []
-        for i, chunk in enumerate(chunks):
-            logger.info(f"流式处理第 {i+1}/{len(chunks)} 块 (长度: {len(chunk)} 字符)")
-            
-            yield f"\n\n=== Processing Section {i+1}/{len(chunks)} ===\n"
-            
-            chunk_query = f"Please provide a preliminary review of the following section (this is part {i+1} of {len(chunks)} parts). Focus on: {query}"
-            
-            try:
-                section_content = []
-                for content_chunk in vllm_service.generate_peer_review_stream(chunk, chunk_query):
-                    yield content_chunk
-                    section_content.append(content_chunk)
-                
-                # 保存完整的块评审用于最终合成
-                chunk_reviews.append(f"Section {i+1} Review:\n{''.join(section_content)}")
-                
-            except Exception as e:
-                logger.error(f"处理第{i+1}块时出错: {str(e)}")
-                error_msg = f"Section {i+1} processing failed: {str(e)}"
-                yield f"\n[ERROR: {error_msg}]\n"
-                chunk_reviews.append(error_msg)
-        
-        # 最终合成评审
-        yield f"\n\n=== Generating Final Comprehensive Review ===\n"
-        
-        combined_reviews = "\n\n".join(chunk_reviews)
-        logger.info(f"开始最终合成评审，合并内容长度: {len(combined_reviews)} 字符")
-        
-        # 如果合并评审仍然过长，则递归处理
-        if len(combined_reviews) > self.MAX_LENGTH:
-            logger.info("Combined reviews still too long, performing final synthesis")
-            for chunk in self.process_long_text_with_chunks_stream(
-                combined_reviews, 
-                f"Please synthesize the following section reviews into a comprehensive peer review focusing on: {query}", 
-                vllm_service
-            ):
-                yield chunk
-        else:
-            # 最终评审
-            final_query = f"Based on the above section reviews, please provide a comprehensive peer review of the entire paper focusing on: {query}"
-            try:
-                for final_chunk in vllm_service.generate_peer_review_stream(combined_reviews, final_query):
-                    yield final_chunk
-                logger.info("Streaming chunk-based peer review completed")
-            except Exception as e:
-                logger.error(f"Error during final review synthesis: {str(e)}")
-                yield f"\n[ERROR: Final synthesis failed: {str(e)}]\n"
-                yield f"\nSection Reviews:\n{combined_reviews}"
-    
-    def _split_text_into_chunks(self, text: str) -> List[str]:
-        """将文本分割成重叠块"""
-        chunks = []
-        start = 0
-        
-        while start < len(text):
-            end = start + self.CHUNK_SIZE
-            
-            # 最后一块包含所有剩余内容
-            if end >= len(text):
-                chunks.append(text[start:])
-                break
-            
-            # 在句子边界分割
-            chunk_end = self._find_sentence_boundary(text, start, end)
-            chunk = text[start:chunk_end]
-            chunks.append(chunk)
-            
-            # 下一块开始位置
-            start = chunk_end - self.CHUNK_OVERLAP
-            start = max(0, start)
-        
-        return chunks
-    
-    def _find_sentence_boundary(self, text: str, start: int, preferred_end: int) -> int:
-        """在句子边界分割"""
-        search_start = max(start, preferred_end - 200)
-        search_end = min(len(text), preferred_end + 200)
-        
-        sentence_endings = ['.', '。', '!', '！', '?', '？', '\n\n']
-        
-        # 向后搜索句子结束
-        for i in range(preferred_end, search_end):
-            if text[i] in sentence_endings:
-                return i + 1
-        
-        # 向前搜索句子结束
-        for i in range(preferred_end, search_start, -1):
-            if text[i] in sentence_endings:
-                return i + 1
-        
-        return preferred_end
-    
     def _truncate_to_max_length(self, text: str) -> str:
-        """截断到最大长度"""
+        """截断到最大字符长度"""
         if len(text) <= self.MAX_LENGTH:
             return text
         
         return text[:self.MAX_LENGTH - 100] + "..."
+    
+    def _truncate_to_max_tokens(self, text: str, max_tokens: int = None) -> str:
+        """按token数量截断（与predict.py对齐）"""
+        if max_tokens is None:
+            max_tokens = self.MAX_TOKENS
+            
+        # 如果没有tokenizer，回退到字符截断
+        if not self.tokenizer:
+            logger.warning("没有可用的tokenizer，使用字符截断")
+            return self._truncate_to_max_length(text)
+        
+        try:
+            # token级别处理
+            tokens = self.tokenizer.encode(text)
+            if len(tokens) <= max_tokens:
+                return text
+            
+            # 截断并解码
+            truncated_tokens = tokens[:max_tokens]
+            return self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+            
+        except Exception as e:
+            logger.warning(f"Token截断失败，使用字符截断: {str(e)}")
+            return self._truncate_to_max_length(text)
 
     def _extract_title(self, paper_json: Dict[str, Any]) -> str:
         """提取标题"""
